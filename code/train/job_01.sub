@@ -1,0 +1,8 @@
+executable = run_train2001.sh
+arguments = /is/software/matlab/linux/R2014a
+error = run_train2001.err
+output = run_train2001.out
+log = run_train2001.log
+request_memory = 245760
+request_cpus = 32
+queue
