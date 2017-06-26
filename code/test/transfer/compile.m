@@ -1,0 +1,1 @@
+mex lut_eval.c COMPFLAGS="$COMPFLAGS /Wall /TP" OPTIMFLAGS="$OPTIMFLAGS /openmp /O2"
