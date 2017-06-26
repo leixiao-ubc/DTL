@@ -17,8 +17,7 @@ for i = 1:1:Model.numDenoiseLayers
     
     % compute filter component
     filterResponse = zeros(Model.numFilters, Test.imdims(1), Test.imdims(2));
-    %par
-    for j = 1:Model.numFilters
+    parfor j = 1:Model.numFilters
         fz = imfilter(split_z_old, Model.filters2D(:,:,j,i), 'circular', 'conv');
         lut_f = permute(Model.lut_f(i, j, :), [3 1 2]);
         [phi(:,:,j,i)] = test_evaluateInfluence(layerscof(:,i), j, fz, Model, Test.use_gpu, Test.use_lut, lut_f);
