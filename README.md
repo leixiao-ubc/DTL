@@ -1,2 +1,2 @@
-DEMO CODE FOR PAPER: XIAO ET AL. "DISCRIMINATIVE TRANSFER LEARNING FOR GENERAL IMAGE RESTORATION".
-ALL COPYRIGHT RESERVED.
+# Demo code for paper: Xiao et al., "Discriminative Transfer Learning for General Image Restoration".
+# All copyright reserved.
