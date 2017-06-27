@@ -44,8 +44,7 @@ for i = 1:Test.N
        x(:,:) = x_new;
       
        if(Test.save_intermediate)
-           psnr = test_computePSNR(x, Test.GT, Test.crop_width, Test.data_normalization_value, Test.isLevinDataset);
-           imwrite(x./255, sprintf('%s%d_psnr%.4f.png', Test.fn_img_interm, t, psnr));
+           psnr = test_computePSNR(x, Test.GT, Test.crop_width, Test.data_normalization_value);
            fprintf('  %.3f dB  ', psnr);
         end
          

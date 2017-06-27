@@ -43,6 +43,7 @@ Test.lambda_bm3d = 20;
 %*************************************
 
 Test.kdims = [1,1];
+Test.save_intermediate = true;
 Test.data_normalization_value = 255; %by default
 Test.use_quantized_meas = false; 
 Test.use_gpu = true;
@@ -58,7 +59,8 @@ psnr_input = zeros(length(sigma), N);
 psnr_output = zeros(length(sigma), N);
 
 [Model] = test_precompute_lut(Model.cof(:), Model, Test.use_gpu);
- 
+[Model] = test_precompute_filters(Model, Model.cof(:));
+    
 for idx_noise = 1:length(sigma)
     
     reset(RandStream.getGlobalStream);
@@ -68,7 +70,7 @@ for idx_noise = 1:length(sigma)
     Test.fn_img_gt = sprintf('%s/%s.png', Test.path_img, Test.fn_img);
     Test.fn_img_meas_copy = sprintf('%s/%s_noise%d.png', result_dir, Test.fn_img, Test.sigma);
     [Test] = test_loadData(Test, Model);
-    [Model] = test_precompute_filters(Test, Model, Model.cof(:));
+
     imwrite(Test.Meas./Test.data_normalization_value, Test.fn_img_meas_copy);
     psnr_input(idx_noise) = test_computePSNR(Test.Meas, Test.GT, Test.crop_width, Test.data_normalization_value);
     

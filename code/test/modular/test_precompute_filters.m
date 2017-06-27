@@ -1,4 +1,4 @@
-function  [Model] = test_precompute_filters(Test, Model, cof)
+function  [Model] = test_precompute_filters(Model, cof)
 
 % precompute filters from the given model coefficients 'cof'
 
@@ -19,6 +19,4 @@ for layer = 1:Model.numDenoiseLayers
     end
 end
     
-Model.fft_one = ones(Test.imdims);
-
 end

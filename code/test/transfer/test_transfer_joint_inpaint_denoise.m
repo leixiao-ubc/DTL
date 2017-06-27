@@ -34,6 +34,7 @@ lambda_array = [6]; % user-specified lambda value (depends on both subsample_rat
 %*************************************
 %*************************************
 
+Test.save_intermediate = true;
 Test.data_normalization_value = 255; %by default
 Test.use_quantized_meas = false; % false following Chen's TRD paper
 Test.kdims = [1,1];
@@ -49,6 +50,7 @@ psnr_input = zeros(length(sigma), N);
 psnr_output = zeros(length(sigma), N);
 
 [Model] = test_precompute_lut(Model.cof(:), Model, Test.use_gpu);
+[Model] = test_precompute_filters(Model, Model.cof(:));
  
 for idx_noise = 1:length(sigma)
     
@@ -60,7 +62,6 @@ for idx_noise = 1:length(sigma)
     Test.fn_img_meas_copy = sprintf('%s/%s_noise%d.png', result_dir, Test.fn_img, Test.sigma);
      
     [Test] = test_loadData(Test, Model);
-    [Model] = test_precompute_filters(Test, Model, Model.cof(:));
     imwrite(Test.Meas./Test.data_normalization_value, Test.fn_img_meas_copy);
     psnr_input(idx_noise) = test_computePSNR(Test.Meas, Test.GT, Test.crop_width, Test.data_normalization_value);
     
@@ -68,7 +69,7 @@ for idx_noise = 1:length(sigma)
         lambda = lambda_array(idx_lambda);
         fprintf('test noise level %f, lambda=%f\n', Test.sigma, lambda);
 
-         [Test, psnr_temp] = test_computeLatentEstimation(Test, Model, lambda);     
+         [Test, ~] = test_computeLatentEstimation(Test, Model, lambda);     
          
          psnr_output(idx_noise, idx_lambda) = test_computePSNR(Test.ESTimg, Test.GT, Test.crop_width, Test.data_normalization_value);
          Test.fn_img_out = sprintf('%s/%s_out_lambda%f_psnr%.4f.png', result_dir, Test.fn_img, lambda, psnr_output(idx_noise, idx_lambda));
@@ -77,7 +78,6 @@ for idx_noise = 1:length(sigma)
          fprintf('\nprocess image %s, psnr (%f, %f), lambda %.3f\n', Test.fn_img, psnr_input(idx_noise), psnr_output(idx_noise), lambda);
     end
 end
-
 
 psnr_mean = mean(psnr_output, 2);
 fprintf('mean psnr is %.3f dB.\n', psnr_mean);

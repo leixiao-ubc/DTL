@@ -1,5 +1,6 @@
 function [Test, psnr] = test_computeLatentEstimation(Test, Model, lambda)
   
+psnr = 0;
 
 % compute for each training image
 for i = 1:Test.N   
@@ -8,10 +9,7 @@ for i = 1:Test.N
     
     Test.x_init = Interpolation_Initial(y, ~Test.MtM);
     x = Test.x_init;
-  
-    split_z = zeros(Test.imdims(1), Test.imdims(2));
-    split_z_local = zeros(Test.imdims(1), Test.imdims(2), Model.numDenoiseLayers);
-       
+         
     fprintf('inner iter ');
     for t = 2:Test.iter
          fprintf('%d', t-1);
@@ -20,21 +18,18 @@ for i = 1:Test.N
         rho = Model.init_rho*Model.rho_ratio^(t-2);
                 
         % update split_z
- 	    split_z_init = x;
-
-        [split_z_local(:,:,:)] = test_eval_prox_denoise(Model.cof, split_z_init, Test, Model); 
+        split_z = test_eval_prox_denoise(x, Model.lut_offset, Model.lut_step, Model.lut_f, Test.imdims, Model.filters2D, Model.filters2Dinv, Model.numDenoiseLayers, Model.numFilters); 
         
-        split_z(:,:) = split_z_local(:,:,end);
-
         % update x        
          rhs = lambda.*Test.Mt.*y + rho.*split_z;
          lhs = lambda.*Test.MtM + rho;
          x_new = rhs./lhs;
          x(:,:) = x_new;
          
-         psnr(t-1) = test_computePSNR(x_new, Test.GT, Test.crop_width, Test.data_normalization_value);
-         fprintf(' (%f)\t', psnr(t-1));
-        
+         if(Test.save_intermediate)
+            psnr = test_computePSNR(x_new, Test.GT, Test.crop_width, Test.data_normalization_value);
+            fprintf(' (%f)\t', psnr);
+         end
     end
     
      % update

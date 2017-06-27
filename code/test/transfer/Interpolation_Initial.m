@@ -11,4 +11,4 @@ im_r=griddata(x,y,im_n(find(c==0)),x1,y1);
 im_r=im_r';
 
 % how to deal with NaN values
-find(isnan(im_r))
+%find(isnan(im_r))

@@ -1,5 +1,6 @@
 function [Test, psnr] = test_computeLatentEstimation(Test, Model, lambda)
   
+psnr = 0;
 
 % compute for each training image
 for i = 1:Test.N   
@@ -9,12 +10,7 @@ for i = 1:Test.N
     
     top_part_fidelity = lambda(i).*fft_y;
     omega_part_fidelity = lambda(i).*ones(Test.imdims);
-    x = y; % initialize the latent image to be the input image
-
-    
-    split_z = zeros(Test.imdims(1), Test.imdims(2));
-    split_z_local = zeros(Test.imdims(1), Test.imdims(2), Model.numDenoiseLayers);
-   
+    x = y; % initialize the latent image to be the input image  
     
     fprintf('inner iter ');
     for t = 2:Test.iter
@@ -25,14 +21,11 @@ for i = 1:Test.N
         rho_bm3d = Test.init_rho_bm3d*Test.rho_ratio_bm3d^(t-2);
     
         % compute omega
-        omega = omega_part_fidelity + (rho + rho_bm3d).*Model.fft_one; 
+        omega = omega_part_fidelity + (rho + rho_bm3d); 
         
         % update split_z
- 	    split_z_init = x;
-
-        [split_z_local(:,:,:)] = test_eval_prox_denoise(Model.cof, split_z_init, Test, Model); 
+        split_z = test_eval_prox_denoise(x, Model.lut_offset, Model.lut_step, Model.lut_f, Test.imdims, Model.filters2D, Model.filters2Dinv, Model.numDenoiseLayers, Model.numFilters); 
         
-        split_z(:,:) = split_z_local(:,:,end);
 
         % update split_v (run BM3D)
         split_v = runBM3D(x, Test.lambda_bm3d./rho_bm3d, Test.data_normalization_value);        
@@ -43,8 +36,10 @@ for i = 1:Test.N
          x_new = real(ifft2(top./omega)); 
          x(:,:) = x_new;
          
-         psnr(t-1) = test_computePSNR(x_new, Test.GT, Test.crop_width, Test.data_normalization_value);
-         fprintf(' (%f)\t', psnr(t-1));
+         if(Test.save_intermediate)
+             psnr = test_computePSNR(x_new, Test.GT, Test.crop_width, Test.data_normalization_value);
+             fprintf(' (%f)\t', psnr);
+         end
          
     end
     
